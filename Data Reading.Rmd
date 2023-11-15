@@ -1,0 +1,55 @@
+---
+title: "Data Reading"
+author: "Devin Wasilefsky"
+date: "2023-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#install.packages("onehot")
+library(onehot)
+library(data.table)
+library(mltools)
+```
+
+```{r}
+data = read.csv("./nbaData.csv")
+```
+
+```{r}
+data <- data %>%
+  select(-c(X, Player.Name, Team))
+```
+
+```{r}
+data$Position <- as.factor(data$Position)
+```
+
+```{r}
+dataEncode <- mltools::one_hot(as.data.table(data))
+```
+
+```{r}
+str(dataEncode)
+```
+
+```{r}
+dataEncode = drop_na(dataEncode)
+```
+
+
+```{r}
+write.csv(dataEncode, "./OneHotData.csv")
+```
+
+
+
+
+
+
+
+
