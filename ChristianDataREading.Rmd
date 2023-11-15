@@ -1,0 +1,163 @@
+---
+title: "ML Project Data Readings"
+author: "Christian Ingersoll"
+date: "2023-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(caret)
+library(tidytext)
+library(wordcloud)
+library(caTools)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(topicmodels)
+library(xgboost)
+library(stringi)
+```
+
+```{r}
+team_data <- read.csv("Data/nba_team_stats_00_to_21.csv", fileEncoding = "UTF-8")
+player_data <- read.csv("Data/PlayerStatisticsPerGame.csv", fileEncoding = "UTF-8")
+```
+
+```{r}
+head(team_data)
+```
+
+```{r}
+team_data <- rename(team_data, Tm = TEAM)
+```
+
+```{r}
+player_data<-player_data %>% filter(year>=2011)
+```
+
+```{r}
+head(player_data)
+```
+
+```{r}
+player_data$Player <- iconv(player_data$Player, "latin1", "UTF-8")
+player_data$Player <- iconv(player_data$Player, "UTF-8", "UTF-8")
+player_data$Player <- stri_encode(player_data$Player, "UTF-8", "UTF-8")
+```
+
+```{r}
+player_data$Player <- str_replace_all(player_data$Player, "[^\r\n\t -~]", "")
+```
+
+```{r}
+team_abbreviations <- c(
+  "Atlanta Hawks" = "ATL",
+  "Boston Celtics" = "BOS",
+  "Brooklyn Nets" = "BKN",
+  "Charlotte Hornets" = "CHA",
+  "Chicago Bulls" = "CHI",
+  "Cleveland Cavaliers" = "CLE",
+  "Dallas Mavericks" = "DAL",
+  "Denver Nuggets" = "DEN",
+  "Detroit Pistons" = "DET",
+  "Golden State Warriors" = "GSW",
+  "Houston Rockets" = "HOU",
+  "Indiana Pacers" = "IND",
+  "Los Angeles Clippers" = "LAC",
+  "Los Angeles Lakers" = "LAL",
+  "Memphis Grizzlies" = "MEM",
+  "Miami Heat" = "MIA",
+  "Milwaukee Bucks" = "MIL",
+  "Minnesota Timberwolves" = "MIN",
+  "New Orleans Pelicans" = "NOP",
+  "New York Knicks" = "NYK",
+  "Oklahoma City Thunder" = "OKC",
+  "Orlando Magic" = "ORL",
+  "Philadelphia 76ers" = "PHI",
+  "Phoenix Suns" = "PHX",
+  "Portland Trail Blazers" = "POR",
+  "Sacramento Kings" = "SAC",
+  "San Antonio Spurs" = "SAS",
+  "Toronto Raptors" = "TOR",
+  "Utah Jazz" = "UTA",
+  "Washington Wizards" = "WAS"
+)
+```
+
+```{r}
+team_data <- team_data %>%
+  mutate(Tm = team_abbreviations[Tm])
+```
+
+```{r}
+head(team_data)
+```
+
+```{r}
+player_data <- player_data %>%
+  group_by(Player, year) %>%
+  filter(row_number() == 1) %>%
+  ungroup()
+```
+
+```{r}
+print(player_data%>%filter(Player == "LaMarcus Aldridge"))
+```
+
+
+```{r}
+team_data <- team_data%>%filter(year<2021)
+```
+
+```{r}
+combined_data <- left_join(player_data, team_data, by = c("Tm", "year"))
+
+# Step 3: Calculate Average Stats by Position
+average_stats_by_position <- combined_data %>%
+  group_by(Tm, year, Pos) %>%
+  summarise(avg_FG = mean(FG, na.rm = TRUE))
+
+# Step 4: Merge the Averages Back into Team Data
+team_data_with_averages <- left_join(team_data, average_stats_by_position, by = c("Tm", "year"))
+```
+```{r}
+# Calculate the average stats by position
+average_stats_by_position <- player_data %>%
+  group_by(Tm, year, Pos) %>%
+  summarise(
+    avg_FG = mean(FG, na.rm = TRUE),
+    avg_Points = mean(PTS, na.rm = TRUE),
+    # ... other stats as needed
+  ) %>%
+  ungroup()
+
+# Pivot the data to create separate columns for each position
+average_stats_pivoted <- average_stats_by_position %>%
+  pivot_wider(
+    names_from = Pos,
+    values_from = c(avg_FG, avg_Points),
+    names_prefix = "avg_",
+    names_sep = "_"
+  )
+
+# Merge the pivoted averages into team_data
+team_data_with_averages <- left_join(team_data, average_stats_pivoted, by = c("Tm", "year"))
+```
+
+```{r}
+team_data_with_averages
+```
+
+```{r}
+team_data
+```
+
