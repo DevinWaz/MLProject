@@ -41,6 +41,14 @@ team_data <- rename(team_data, Tm = TEAM)
 ```
 
 ```{r}
+team_data <- team_data %>%
+  mutate(SEASON = as.integer(str_extract(SEASON, "\\d{2}$")) + 2000) %>%
+  rename(year = SEASON)
+team_data <- team_data%>%filter(year<2021)
+team_data <- team_data%>%filter(year<2021)
+```
+
+```{r}
 player_data<-player_data %>% filter(year>=2011)
 ```
 
@@ -78,6 +86,7 @@ team_abbreviations <- c(
   "Miami Heat" = "MIA",
   "Milwaukee Bucks" = "MIL",
   "Minnesota Timberwolves" = "MIN",
+  "New Orleans Hornets" = "NOH",
   "New Orleans Pelicans" = "NOP",
   "New York Knicks" = "NYK",
   "Oklahoma City Thunder" = "OKC",
@@ -99,7 +108,7 @@ team_data <- team_data %>%
 ```
 
 ```{r}
-head(team_data)
+unique(team_data$Tm)
 ```
 
 ```{r}
@@ -110,17 +119,19 @@ player_data <- player_data %>%
 ```
 
 ```{r}
-print(player_data%>%filter(Player == "LaMarcus Aldridge"))
+player_data<-player_data%>%filter(Pos %in% c('C', 'PG', 'SF', 'SG', 'PF'))
 ```
 
 
 ```{r}
-team_data <- team_data%>%filter(year<2021)
+combined_data
 ```
+
 
 ```{r}
 combined_data <- left_join(player_data, team_data, by = c("Tm", "year"))
 
+combined_data <- combined_data%>%filter(Tm !="TOT")
 # Step 3: Calculate Average Stats by Position
 average_stats_by_position <- combined_data %>%
   group_by(Tm, year, Pos) %>%
@@ -132,7 +143,7 @@ team_data_with_averages <- left_join(team_data, average_stats_by_position, by = 
 ```{r}
 # Calculate the average stats by position
 average_stats_by_position <- player_data %>%
-  group_by(Tm, year, Pos) %>%
+  group_by(Tm, year, Pos) %>% 
   summarise(
     avg_FG = mean(FG, na.rm = TRUE),
     avg_Points = mean(PTS, na.rm = TRUE),
@@ -158,6 +169,6 @@ team_data_with_averages
 ```
 
 ```{r}
-team_data
+player_data%>%filter(Pos == "SF-PF")
 ```
 
