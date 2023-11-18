@@ -156,7 +156,7 @@ average_stats_pivoted <- average_stats_by_position %>%
   pivot_wider(
     names_from = Pos,
     values_from = c(avg_FG, avg_Points),
-    names_prefix = "avg_",
+    names_prefix = "",
     names_sep = "_"
   )
 
@@ -166,9 +166,46 @@ team_data_with_averages <- left_join(team_data, average_stats_pivoted, by = c("T
 
 ```{r}
 team_data_with_averages
+6, 9, 10:39
+```
+
+
+```{r}
+team_data_with_averages[,c(6, 7:39)]
+team_data_with_averages[,c(6, 9, 10:39)]
+```
+
+## Running Boruta
+
+```{r}
+library(Boruta)
+library(shapr)
 ```
 
 ```{r}
-player_data%>%filter(Pos == "SF-PF")
+borutaData <- drop_na(team_data_with_averages[,c(6, 9, 10:39)])
 ```
+
+```{r}
+borutaData
+```
+
+
+```{r}
+boruta_result <- Boruta(WIN.~., data = borutaData)
+```
+
+```{r}
+selected_features <- getSelectedAttributes(boruta_result)
+```
+
+```{r}
+selected_features
+```
+
+
+
+
+
+
 
