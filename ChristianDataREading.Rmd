@@ -165,12 +165,6 @@ team_data_with_averages <- left_join(team_data, average_stats_pivoted, by = c("T
 ```
 
 ```{r}
-team_data_with_averages
-6, 9, 10:39
-```
-
-
-```{r}
 team_data_with_averages[,c(6, 7:39)]
 team_data_with_averages[,c(6, 9, 10:39)]
 ```
@@ -183,29 +177,96 @@ library(shapr)
 ```
 
 ```{r}
-borutaData <- drop_na(team_data_with_averages[,c(6, 9, 10:39)])
+borutaData <- read.csv("./team_data_with_averages.csv")
 ```
 
 ```{r}
-borutaData
-```
-
-
-```{r}
-boruta_result <- Boruta(WIN.~., data = borutaData)
+borutaData <- borutaData[,4:129]
 ```
 
 ```{r}
-selected_features <- getSelectedAttributes(boruta_result)
+borutaDataC <- borutaData[, grep("C$", names(borutaData))]
+borutaDataC <- cbind(Win = borutaData[,1], borutaDataC)
+
+borutaDataPG <- borutaData[, grep("PG$", names(borutaData))]
+borutaDataPG <- cbind(Win = borutaData[,1], borutaDataPG)
+
+borutaDataPF <- borutaData[, grep("PF$", names(borutaData))]
+borutaDataPF <- cbind(Win = borutaData[,1], borutaDataPF)
+
+borutaDataSF <- borutaData[, grep("SF$", names(borutaData))]
+borutaDataSF <- cbind(Win = borutaData[,1], borutaDataSF)
+
+borutaDataSG <- borutaData[, grep("SG$", names(borutaData))]
+borutaDataSG <- cbind(Win = borutaData[,1], borutaDataSG)
+```
+
+
+#### Centers
+
+```{r}
+boruta_resultC <- Boruta(Win~., data = borutaDataC)
+selected_featuresC <- getSelectedAttributes(boruta_resultC)
 ```
 
 ```{r}
-selected_features
+selected_featuresC
 ```
 
+```{r}
+# Plot the Boruta results with custom x-axis labels
+par(mar = c(8, 4, 4, 1)) 
+plot(boruta_resultC, main = "Boruta Results Center", xlab = "", ylab = "Importance", las = 2, cex.axis=0.6)
+```
 
+#### Point Guard
 
+```{r}
+boruta_resultPG <- Boruta(Win~., data = borutaDataPG)
+selected_featuresPG <- getSelectedAttributes(boruta_resultPG)
+```
 
+```{r}
+# Plot the Boruta results with custom x-axis labels
+par(mar = c(8, 4, 4, 1)) 
+plot(boruta_resultPG, main = "Boruta Results Point Guard", xlab = "", ylab = "Importance", las = 2, cex.axis=0.6)
+```
 
+#### Power Forward
 
+```{r}
+boruta_resultPF <- Boruta(Win~., data = borutaDataPF)
+selected_featuresPF <- getSelectedAttributes(boruta_resultPF)
+```
 
+```{r}
+# Plot the Boruta results with custom x-axis labels
+par(mar = c(8, 4, 4, 1)) 
+plot(boruta_resultPF, main = "Boruta Results Power Forward", xlab = "", ylab = "Importance", las = 2, cex.axis=0.6)
+```
+
+#### Shooting Forward
+
+```{r}
+boruta_resultSF <- Boruta(Win~., data = borutaDataSF)
+selected_featuresSF <- getSelectedAttributes(boruta_resultSF)
+```
+
+```{r}
+# Plot the Boruta results with custom x-axis labels
+par(mar = c(8, 4, 4, 1)) 
+plot(boruta_resultSF, main = "Boruta Results Shooting Forward", xlab = "", ylab = "Importance", las = 2, cex.axis=0.6)
+```
+
+#### Shooting Guard
+
+```{r}
+boruta_resultSG <- Boruta(Win~., data = borutaDataSG)
+selected_featuresSG <- getSelectedAttributes(boruta_resultSG)
+```
+
+```{r}
+# Plot the Boruta results with custom x-axis labels
+par(mar = c(8, 4, 4, 1)) 
+plot(boruta_resultSG, main = "Boruta Results Shooting Guard", xlab = "", ylab = "Importance", las = 2, cex.axis=0.6)
+```
