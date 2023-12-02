@@ -17,22 +17,16 @@ library(mltools)
 ```
 
 ```{r}
-dataTrain = read.csv("./nbaDataTrain.csv")
-dataTest = read.csv("./nbaDataTest.csv")
+data = read.csv("./nbaData.csv")
 ```
 
 ```{r}
-dataTest
-```
-
-```{r}
-colnames(dataTrain)
-colnames(dataTest)
+data
 ```
 
 
 ```{r}
-dataTrain <- dataTrain %>%
+data <- data %>%
   select(-c(X, Player.Name, Team))
 ```
 
