@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(onehot)
 library(data.table)
 library(mltools)
+library(tidyverse)
 ```
 
 ```{r}
@@ -26,16 +27,16 @@ data
 
 
 ```{r}
-data <- data %>%
+newData <- data %>%
   select(-c(X, Player.Name, Team))
 ```
 
 ```{r}
-data$Position <- as.factor(data$Position)
+newData$Position <- as.factor(newData$Position)
 ```
 
 ```{r}
-dataEncode <- mltools::one_hot(as.data.table(data))
+dataEncode <- mltools::one_hot(as.data.table(newData))
 ```
 
 ```{r}
@@ -43,6 +44,7 @@ str(dataEncode)
 ```
 
 ```{r}
+dataEncode$Player = data$Player.Name
 dataEncode = drop_na(dataEncode)
 ```
 
