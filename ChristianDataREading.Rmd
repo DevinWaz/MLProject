@@ -122,12 +122,6 @@ player_data <- player_data %>%
 player_data<-player_data%>%filter(Pos %in% c('C', 'PG', 'SF', 'SG', 'PF'))
 ```
 
-
-```{r}
-combined_data
-```
-
-
 ```{r}
 combined_data <- left_join(player_data, team_data, by = c("Tm", "year"))
 
